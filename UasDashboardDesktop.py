@@ -3,6 +3,9 @@ import paho.mqtt.client as mqtt
 from matplotlib.widgets import Button
 from collections import deque
 from datetime import datetime
+import time
+
+
 
 topicpub_temp = "4171/dht11/temp"
 topicpub_hum = "4171/dht11/hum"
@@ -19,7 +22,7 @@ ldr_data = deque(maxlen=5)
 current_times = deque(maxlen=5)
 random_data = deque(maxlen=5)
 
-bar_data = [15]
+bar_data = [100]
 
 fig, (axLDR, ax, axBar) = plt.subplots(3, 1, figsize=(13, 12))
 plt.subplots_adjust(top=0.85,
@@ -35,13 +38,13 @@ def update_LDR():
     axLDR.set_xlabel('Time')
     axLDR.set_ylabel('Value')
     axLDR.set_title('LDR Sensor Data')
-    axLDR.legend()
+    axLDR.legend()  
 
     # Menambahkan teks jika nilai LDR di bawah 40
     if ldr_data[-1] < 50:
         axLDR.text(0.15, 0.15, 'Lampu Menyala', ha='right', va='top', transform=axLDR.transAxes,
                    fontsize=12, color='red')
-
+        
     plt.draw()
 
 def update_temp_hum():
@@ -64,9 +67,9 @@ def update_temp_hum():
 def update_bar():
     axBar.clear()
     axBar.bar(["Random"], bar_data)
-    axBar.set_ylabel("Slot")
-    axBar.set_title("Slot Parkir", pad=10)
-    axBar.set_ylim(0, 15)
+    axBar.set_ylabel("Jumlah")
+    axBar.set_title("Jumlah Pengunjung", pad=10)
+    axBar.set_ylim(0, 100)
     axBar.text(0, 14, str(bar_data[0]), ha="center", va="center")
     plt.draw()
 
@@ -104,11 +107,11 @@ def publish_message(message):
     client.publish(topicpub_relay, message)
 
 button_on_ax = plt.axes([0.51, 0.05, 0.1, 0.05])
-button_on = Button(button_on_ax, 'Tutup Palang')
+button_on = Button(button_on_ax, 'Keluar')
 button_on.on_clicked(lambda event: publish_message("nyala"))
 
 button_off_ax = plt.axes([0.4, 0.05, 0.1, 0.05])
-button_off = Button(button_off_ax, 'Buka Palang')
+button_off = Button(button_off_ax, 'Masuk')
 button_off.on_clicked(lambda event: publish_message("mati"))
 
 client.connect(broker)
